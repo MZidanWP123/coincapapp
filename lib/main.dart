@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:coincapapp/models/app_config.dart';
-import 'package:coincapapp/pages/home_page.dart';
+import 'package:coincapapp/pages/dashboard.dart';
+//import 'package:coincapapp/pages/home_page.dart';
 import 'package:coincapapp/services/http_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,7 +40,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Color.fromRGBO(88, 60, 197, 1.0)
       ),
-      home: HomePage(),
+      home: Dashboard(),
     );
   }
 }

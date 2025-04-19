@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class HomePage extends StatefulWidget {
+  final String coinId;
+
+  HomePage({required this.coinId});
+
   @override
   State<StatefulWidget> createState() {
     return _HomePageState();
@@ -16,8 +20,6 @@ class _HomePageState extends State<HomePage> {
   double? _deviceHeight, _deviceWidth;
 
   HttpService? _http;
-
-
 
   @override
   void initState() {
@@ -37,7 +39,7 @@ class _HomePageState extends State<HomePage> {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _selectedCoinDropDown(),
+              //_selectedCoinDropDown(),
               _dataWidget(),
             ],
           ),
@@ -80,7 +82,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _dataWidget() {
     return FutureBuilder(
-        future: _http!.get("&ids=bitcoin&per_page=1").then((response) {
+        future: _http!.get("/coins/${widget.coinId}").then((response) {
           // print("Response dari API: $response");
           return response;
         }).catchError((error) {
@@ -91,14 +93,14 @@ class _HomePageState extends State<HomePage> {
           if (_snapshot.hasData) {
             //print("Response dari API: ${_snapshot.data}");
             // print('yyet');
-            // Map _data = jsonDecode(_snapshot.data.toString());
+            Map _data = jsonDecode(_snapshot.data.toString());
             // print('yyot');
             // print("Response dari API: ${_data}");
-            List<dynamic> _dataList = jsonDecode(_snapshot.data.toString());
-            print("Response dari API: ${_dataList}");
-Map<String, dynamic> _data = _dataList[0];
-            num _usdPrice = _data["market_data"] != null ? _data["market_data"]["current_price"]["usd"] : 0;
-            num _change24h = _data["market_data"] != null ? _data["market_data"]["price_change_percentage24h"] : 0;
+            //List<dynamic> _dataList = jsonDecode(_snapshot.data.toString());
+            //print("Response dari API: ${_dataList}");
+            //Map<String, dynamic> _data = _dataList[0];
+            num _usdPrice =  _data["market_data"]["current_price"]["usd"] ?? 0;
+            num _change24h = _data["market_data"]["price_change_percentage24h"] ?? 0;
             return Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               mainAxisSize: MainAxisSize.max,
@@ -111,11 +113,11 @@ Map<String, dynamic> _data = _dataList[0];
                       return DetailsPage();
                     }));
                   },
-                  child: _coinImageWidget(_data["logo"]),
+                  child: _coinImageWidget(_data["image"]["large"]),
                 ),
                 _currentPriceWidget(_usdPrice),
                 _percentageChangeWidget(_change24h),
-                _descriptionCardWidget(_data["description"]),
+                _descriptionCardWidget(_data["description"]["en"]),
               ],
             );
           } else {
