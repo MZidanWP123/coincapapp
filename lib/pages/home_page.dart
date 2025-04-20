@@ -28,10 +28,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    _deviceHeight = MediaQuery.of(context).size.height;
-    _deviceWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
+  @override
+Widget build(BuildContext context) {
+  _deviceHeight = MediaQuery.of(context).size.height;
+  _deviceWidth = MediaQuery.of(context).size.width;
+  return GestureDetector(
+    onHorizontalDragEnd: (details) {
+      if (details.primaryVelocity! > 0) {
+        // swipe dari kiri ke kanan
+        Navigator.pop(context);
+      }
+    },
+    child: Scaffold(
       body: SafeArea(
         child: Center(
           child: Column(
@@ -39,14 +47,15 @@ class _HomePageState extends State<HomePage> {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              //_selectedCoinDropDown(),
               _dataWidget(),
             ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _selectedCoinDropDown() {
     List<String> _coins = ["bitcoin","ethereum"];
@@ -100,7 +109,7 @@ class _HomePageState extends State<HomePage> {
             //print("Response dari API: ${_dataList}");
             //Map<String, dynamic> _data = _dataList[0];
             num _usdPrice =  _data["market_data"]["current_price"]["usd"] ?? 0;
-            num _change24h = _data["market_data"]["price_change_percentage24h"] ?? 0;
+            num _change24h = _data["market_data"]["price_change_percentage_24h"] ?? 0;
             return Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               mainAxisSize: MainAxisSize.max,

@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:coincapapp/services/http_service.dart';
 import 'package:get_it/get_it.dart';
+import 'package:data_table_2/data_table_2.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -49,45 +50,79 @@ class _DashboardState extends State<Dashboard> {
       future: _http!
           .get(
               "coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false")
-          .then((response) {
-        if (response != null) {
-          return response.data;
-        } else {
-          return null;
-        }
-      }).catchError((error) {
+          .then((response) => response?.data)
+          .catchError((error) {
         print("error saat fetch data : $error");
         return null;
       }),
-      builder: (BuildContext _context, AsyncSnapshot _snapshot) {
-        if (_snapshot.connectionState == ConnectionState.waiting) {
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-            child: CircularProgressIndicator(color: Colors.white),
-          );
+              child: CircularProgressIndicator(color: Colors.white));
         }
-        if (_snapshot.hasData) {
-          List<dynamic> _data = _snapshot.data;
-          return ListView.builder(
-            itemCount: _data.length,
-            itemBuilder: (context, index) {
-              var coin = _data[index];
-              return GestureDetector(
-                onDoubleTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (BuildContext _context) {
-                    return HomePage(coinId: coin['id']);
-                  }));
-                },
-                child: ListTile(
-                  title: Text(coin['name'] ?? 'Unknown'),
-                  subtitle: Text('\$${coin['current_price'] ?? 0}'),
-                  leading: Image.network(coin['image'] ?? ''),
-                ),
-              );
-            },
+
+        if (snapshot.hasData) {
+          List<dynamic> data = snapshot.data;
+
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * 0.85,
+              child: DataTable2(
+                columnSpacing: 25,
+                horizontalMargin: 10,
+                minWidth: 800,
+                columns: const [
+                  DataColumn2(label: Text('Coin', style: TextStyle(color: Colors.white),), size: ColumnSize.L),
+                  DataColumn(label: Text('Price', style: TextStyle(color: Colors.white),)),
+                  DataColumn(label: Text('Market Cap', style: TextStyle(color: Colors.white),)),
+                  DataColumn(label: Text('Change 24h', style: TextStyle(color: Colors.white),)),
+                ],
+                rows: data.map<DataRow>((coin) {
+                  return DataRow(cells: [
+                    DataCell(
+                      GestureDetector(
+                        onDoubleTap: () {
+                          Navigator.push(
+                            context, 
+                            MaterialPageRoute(builder: (BuildContext _context){
+                              return HomePage(coinId: coin['id']);
+                            }),
+                          );
+                        },
+                      child: Row(
+                        children: [
+                          Image.network(coin['image'], width: 25),
+                          const SizedBox(width: 15),
+                          SizedBox(
+                            width: 120,
+                            child: Text(
+                              coin['name'],
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                    DataCell(Text('\$${coin['current_price'] ?? 'N/A'}', style: TextStyle(color: Colors.white),)),
+                    DataCell(Text('\$${coin['market_cap'] ?? 'N/A'}', style: TextStyle(color: Colors.white),)),
+                    DataCell(Text(
+                      '${(coin['price_change_percentage_24h'] ?? 0).toStringAsFixed(2)}%',
+                      style: TextStyle(
+                        color: (coin['price_change_percentage_24h'] ?? 0) >= 0
+                            ? Colors.green
+                            : Colors.red,
+                      ),
+                    )),
+                  ]);
+                }).toList(),
+              ),
+            ),
           );
-        } else if (_snapshot.hasError) {
-          return Center(child: Text("Terjadi kesalahan: ${_snapshot.error}"));
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Terjadi kesalahan: ${snapshot.error}"));
         } else {
           return const Center(child: Text("Tidak ada data."));
         }
