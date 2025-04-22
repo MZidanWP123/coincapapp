@@ -1,0 +1,1 @@
+C:\flutter_project\coincapapp\build\app\intermediates\cxx\Debug\531x586n\obj\x86_64

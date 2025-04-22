@@ -123,6 +123,7 @@ Widget build(BuildContext context) {
                 //   },
                 //   child: _coinImageWidget(_data["image"]["large"]),
                 // ),
+                _coinImageWidget(_data["image"]["large"]),
                 _currentPriceWidget(_usdPrice),
                 _percentageChangeWidget(_change24h),
                 _descriptionCardWidget(_data["description"]["en"]),
